@@ -1,0 +1,4 @@
+build/
+doxygen/
+MatrixLibraryPerformanceTests.cpp
+.vscode
