@@ -10,6 +10,14 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <stdio.h>
+#include <vector>
+
+#ifdef OPENCL_ENABLE
+#include <fstream>
+#include <OpenCL/cl.h>
+#endif
+
 using namespace std;
 
 template <typename T>
@@ -21,6 +29,25 @@ private:
     size_t numRows, numCols;
 
     T *mat;
+
+#ifdef OPENCL_ENABLE
+    const string kernelFilePath = "../src/matrixmul_kernel.cl";
+
+    int err;
+    cl_device_id deviceId;     //   compute device id
+    cl_context context;        //   compute context
+    cl_command_queue commands; //   compute command queue
+    cl_program program;        //   compute program
+    cl_kernel kernel;          //   compute kernel
+
+    cl_uint deviceCount;
+    cl_platform_id platformsIds[100];
+
+    void initOpenCl();
+    void createOpenClComputeContext();
+    void buildOpenClProgramExecutable(string);
+    void loadOpenClKernel(string);
+#endif
 
 public:
     Matrix();
@@ -54,11 +81,9 @@ public:
     bool equals(Matrix<T> &);
 };
 
-#ifdef OPENCL
-#include <OpenCL/cl.h>
+#ifdef OPENCL_ENABLE
 #include "Matrix_opencl.cpp"
 #else
 #include "Matrix_cpu.cpp"
 #endif
-
 #endif

@@ -451,6 +451,7 @@ TEST(scalarDivision, Division_RectangularMatrix)
 
 int main(int argc, char **argv)
 {
-    ::testing::InitGoogleMock(&argc, argv);
-    return RUN_ALL_TESTS();
+    Matrix<int> mat;
+    // ::testing::InitGoogleMock(&argc, argv);
+    // return RUN_ALL_TESTS();
 }
