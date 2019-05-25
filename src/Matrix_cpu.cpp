@@ -33,7 +33,12 @@ Matrix<T>::Matrix(size_t rows, size_t cols)
         mat[i] = 0;
     }
 
-    // memset(mat, 0, sizeof(int*));
+    /*
+     * memset doesn't appear to intialize all values of the array to 0 as it should with this
+     * call: memset(mat, 0, sizeof(int*));. very strange 🤔. 
+     * Update: lol I think i think i fixed it
+     */
+    memset(mat, {0}, sizeof(int *));
 }
 
 /**
