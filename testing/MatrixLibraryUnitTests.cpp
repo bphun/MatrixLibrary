@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "src/Matrix.h"
+#include "../src/Matrix.h"
 
 using namespace std;
 
