@@ -1,5 +1,21 @@
 #include "Matrix.h"
 
+#define WA 1024
+#define HA 1024
+#define WB 1024
+
+#define HB WA
+#define WC WB
+#define HC HA
+
+void randomMemInit(int *data, int size)
+{
+    int i;
+
+    for (i = 0; i < size; ++i)
+        data[i] = rand() / (int)RAND_MAX;
+}
+
 /**
  * Initialize an empty matrix with 0 rows and 0 columns
  */
@@ -116,6 +132,11 @@ template <typename T>
 Matrix<T>::~Matrix()
 {
     delete[] mat;
+
+    clReleaseProgram(program);
+    clReleaseKernel(kernel);
+    clReleaseCommandQueue(commands);
+    clReleaseContext(context);
 }
 
 /**
@@ -374,8 +395,61 @@ bool Matrix<T>::equals(Matrix<T> &matrix)
 template <typename T>
 void Matrix<T>::initOpenCl()
 {
+    detectDevices();
     createOpenClComputeContext();
     buildOpenClProgramExecutable(kernelFilePath);
+}
+
+template <typename T>
+void Matrix<T>::detectDevices()
+{
+    CL_CHECK(clGetPlatformIDs(100, platforms, &platformCount));
+
+    printf("%d OpenCL platform(s) found:\n", platformCount);
+    for (int i = 0; i < platformCount; i++)
+    {
+        char buffer[10240];
+        printf("  -- %d --\n", i);
+        CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_PROFILE, 10240, buffer, NULL));
+        printf("\tPROFILE: %s\n", buffer);
+        CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_VERSION, 10240, buffer, NULL));
+        printf("\tVERSION: %s\n", buffer);
+        CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_NAME, 10240, buffer, NULL));
+        printf("\tNAME: %s\n", buffer);
+        CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_VENDOR, 10240, buffer, NULL));
+        printf("\tVENDOR: %s\n", buffer);
+        CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, 10240, buffer, NULL));
+        printf("\tEXTENSIONS: %s\n", buffer);
+    }
+
+    if (platformCount == 0)
+        exit(1);
+
+    // CL_CHECK(clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 100, devices, &deviceCount));
+    CL_CHECK(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, 100, devices, &deviceCount));
+
+    printf("%d OpenCL device(s) found on platform:\n", platformCount + 1);
+    for (int i = 0; i < deviceCount; i++)
+    {
+        char buffer[10240];
+        cl_uint buf_uint;
+        cl_ulong buf_ulong;
+        printf("  -- %d --\n", i);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_NAME, sizeof(buffer), buffer, NULL));
+        printf("\tDEVICE_NAME: %s\n", buffer);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_VENDOR, sizeof(buffer), buffer, NULL));
+        printf("\tDEVICE_VENDOR: %s\n", buffer);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_VERSION, sizeof(buffer), buffer, NULL));
+        printf("\tDEVICE_VERSION: %s\n", buffer);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DRIVER_VERSION, sizeof(buffer), buffer, NULL));
+        printf("\tDRIVER_VERSION: %s\n", buffer);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(buf_uint), &buf_uint, NULL));
+        printf("\tDEVICE_MAX_COMPUTE_UNITS: %u\n", (unsigned int)buf_uint);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(buf_uint), &buf_uint, NULL));
+        printf("\tDEVICE_MAX_CLOCK_FREQUENCY: %u\n", (unsigned int)buf_uint);
+        CL_CHECK(clGetDeviceInfo(devices[i], CL_DEVICE_GLOBAL_MEM_SIZE, sizeof(buf_ulong), &buf_ulong, NULL));
+        printf("\tDEVICE_GLOBAL_MEM_SIZE: %llu\n", (unsigned long long)buf_ulong);
+    }
 }
 
 /**
@@ -384,32 +458,10 @@ void Matrix<T>::initOpenCl()
 template <typename T>
 void Matrix<T>::createOpenClComputeContext()
 {
-    deviceCount = 0;
-    clGetPlatformIDs(0, 0, &deviceCount);
 
-    clGetPlatformIDs(deviceCount, platformsIds, nullptr);
+    context = CL_CHECK_ERR(clCreateContext(nullptr, 1, devices, pfn_notify, nullptr, &err));
 
-    err = clGetDeviceIDs(platformsIds[0], CL_DEVICE_TYPE_GPU, 1, &deviceId, nullptr);
-
-    if (err != CL_SUCCESS)
-    {
-        printf("Failed to create OpenCL device group\n");
-        exit(EXIT_FAILURE);
-    }
-
-    context = clCreateContext(0, 1, &deviceId, nullptr, nullptr, &err);
-    if (!context)
-    {
-        printf("Failed to create an OpenCL compute context\n");
-        exit(EXIT_FAILURE);
-    }
-
-    commands = clCreateCommandQueue(context, deviceId, 0, &err);
-    if (!commands)
-    {
-        printf("Failed to create an OpenCL command queue\n");
-        exit(EXIT_FAILURE);
-    }
+    commands = CL_CHECK_ERR(clCreateCommandQueue(context, devices[0], 0, &err));
 }
 
 /**
@@ -441,11 +493,7 @@ void Matrix<T>::buildOpenClProgramExecutable(string kernelFilePath)
     kernelSource[size] = '\0';
     fclose(file);
 
-    program = clCreateProgramWithSource(context, 1, (const char **)&kernelSource, nullptr, &err);
-    if (!program)
-    {
-        printf("Failed to create OpenCL compute program\n");
-    }
+    program = CL_CHECK_ERR(clCreateProgramWithSource(context, 1, (const char **)&kernelSource, nullptr, &err));
 
     err = clBuildProgram(program, 0, nullptr, nullptr, nullptr, nullptr);
     if (err != CL_SUCCESS)
@@ -462,7 +510,9 @@ void Matrix<T>::buildOpenClProgramExecutable(string kernelFilePath)
 }
 
 /**
- * Loads an OpenCL kernel from a pre-existing program instance
+ * Creates an OpenCL kernel from a pre-existing program instance
+ * 
+ * @param kernelName Name of the kernel that will be created
  */
 template <typename T>
 void Matrix<T>::loadOpenClKernel(string kernelName)
