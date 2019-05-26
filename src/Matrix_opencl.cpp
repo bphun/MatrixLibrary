@@ -24,6 +24,8 @@ Matrix<T>::Matrix()
 template <typename T>
 Matrix<T>::Matrix(size_t rows, size_t cols)
 {
+    initOpenCl();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -53,6 +55,8 @@ Matrix<T>::Matrix(size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
 {
+    initOpenCl();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -76,6 +80,8 @@ Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
 {
+    initOpenCl();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -96,6 +102,8 @@ Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(Matrix<T> &matrix)
 {
+    initOpenCl();
+
     this->numRows = matrix.rows();
     this->numCols = matrix.cols();
 
