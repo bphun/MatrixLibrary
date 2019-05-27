@@ -28,7 +28,7 @@ void pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *
         cl_int _err = _expr;                                                     \
         if (_err == CL_SUCCESS)                                                  \
             break;                                                               \
-        fprintf(stderr, "OpenCL Error: '%s' returned %d!\n", #_expr, (int)_err); \
+        fprintf(stderr, "OpenCL Error: '%s' returned %d\n", #_expr, (int)_err); \
         abort();                                                                 \
     } while (0)
 
@@ -38,7 +38,7 @@ void pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *
         decltype(_expr) _ret = _expr;                                                \
         if (!_ret)                                                                   \
         {                                                                            \
-            fprintf(stderr, "OpenCL Error: '%s' returned %d!\n", #_expr, (int)_err); \
+            fprintf(stderr, "OpenCL Error: '%s' returned %d\n", #_expr, (int)_err); \
             abort();                                                                 \
         }                                                                            \
         _ret;                                                                        \
@@ -59,9 +59,11 @@ private:
     T *mat;
 
 #ifdef OPENCL_ENABLE
-    const string kernelFilePath = "../src/matrixmul_kernel.cl";
+    const string kernelFilePath = "../src/gpuComputeKernels.cl";
 
     int err;
+    bool kernelCreated = false;
+
     cl_device_id deviceId;     //   compute device id
     cl_context context;        //   compute context
     cl_command_queue commands; //   compute command queue
@@ -71,16 +73,23 @@ private:
     cl_uint deviceCount;
     cl_uint platformCount;
 
-    cl_platform_id platformsIds[100];
+    cl_event kernelCompletion;
+
     cl_platform_id platforms[100];
     cl_device_id devices[100];
+
+    cl_mem deviceInputArrayA;
+    cl_mem deviceInputArrayB;
+    cl_mem deviceOutputArray;
+
+    size_t localWorkSize[2], globalWorkSize[2];
 
     void initOpenCl();
     void detectDevices();
     void createOpenClComputeContext();
     void buildOpenClProgramExecutable(string);
     void loadOpenClKernel(string);
-    
+
 #endif
 
 public:
