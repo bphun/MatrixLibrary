@@ -43,7 +43,7 @@ enable_testing()
 
 add_executable(matrixlibraryperformancetests testing/MatrixLibraryPerformanceTests.cpp)
 
-set(OPENCL 1)
+set(OPENCL 0)
 add_executable(matrixlibraryunittests testing/MatrixLibraryUnitTests.cpp)
 
 if (OPENCL)
