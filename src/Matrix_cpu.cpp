@@ -9,7 +9,7 @@ Matrix<T>::Matrix()
     this->numRows = 0;
     this->numCols = 0;
 
-    mat = new int[0];
+    mat = new T[0];
 }
 
 /**
@@ -22,23 +22,13 @@ Matrix<T>::Matrix()
 template <typename T>
 Matrix<T>::Matrix(size_t rows, size_t cols)
 {
-
     this->numRows = rows;
     this->numCols = cols;
 
-    mat = new int[size()];
+    mat = new T[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         mat[i] = 0;
-    }
-
-    /*
-     * memset doesn't appear to intialize all values of the array to 0 as it should with this
-     * call: memset(mat, 0, sizeof(int*));. very strange 🤔. 
-     * Update: lol I think i think i fixed it
-     */
-    memset(mat, {0}, sizeof(int *));
 }
 
 /**
@@ -56,12 +46,10 @@ Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
     this->numRows = rows;
     this->numCols = cols;
 
-    mat = new int[size()];
+    mat = new T[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         setElementAt(i / cols, i % cols, arr[i]);
-    }
 }
 
 /**
@@ -79,12 +67,10 @@ Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
     this->numRows = rows;
     this->numCols = cols;
 
-    mat = new int[size()];
+    mat = new T[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         setElementAt(i / cols, i % cols, arr[i]);
-    }
 }
 
 /**
@@ -99,7 +85,7 @@ Matrix<T>::Matrix(Matrix<T> &matrix)
     this->numRows = matrix.rows();
     this->numCols = matrix.cols();
 
-    mat = new int[matrix.size()];
+    mat = new T[matrix.size()];
 
     memcpy(mat, matrix.flatten(), sizeof(int *));
 }
@@ -194,9 +180,7 @@ void Matrix<T>::print()
     for (int r = 0; r < numRows; r++)
     {
         for (int c = 0; c < numCols; c++)
-        {
             cout << elementAt(r, c) << " ";
-        }
         cout << endl;
     }
 }
@@ -221,9 +205,7 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     T *flattenedMatrix = matrix.flatten();
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] + flattenedMatrix[i];
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -248,9 +230,7 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
     T *flattenedMatrix = matrix.flatten();
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] - flattenedMatrix[i];
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -271,9 +251,7 @@ Matrix<T> &Matrix<T>::operator*(T scalar)
     T *resultArr = new int[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] * scalar;
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -294,15 +272,9 @@ Matrix<T> &Matrix<T>::operator*(Matrix<T> &matrix)
     Matrix<T> *resultMatrix = new Matrix(numRows, matrix.cols());
 
     for (int r = 0; r < numRows; r++)
-    {
         for (int c = 0; c < matrix.cols(); c++)
-        {
             for (int k = 0; k < numCols; k++)
-            {
                 resultMatrix->setElementAt(r, c, resultMatrix->elementAt(r, c) + elementAt(r, k) * matrix.elementAt(k, c));
-            }
-        }
-    }
 
     return *resultMatrix;
 }
@@ -332,9 +304,7 @@ Matrix<T> &Matrix<T>::operator/(T scalar)
     T *resultArr = new int[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] / scalar;
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -350,10 +320,8 @@ bool Matrix<T>::equals(Matrix<T> &matrix)
     T *flattenedComparisonMatrix = matrix.flatten();
 
     for (int i = 0; i < size(); i++)
-    {
         if (mat[i] != flattenedComparisonMatrix[i])
             return false;
-    }
 
     return true;
 }
