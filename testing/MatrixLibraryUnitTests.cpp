@@ -49,10 +49,8 @@ TEST(ConstructorTests, specifiedMatrixArray_SquareMatrix)
     Matrix<int> matrix(arr, rows, cols);
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(matrix.elementAt(r, c), arr[r * cols + c]);
-    }
 
     EXPECT_EQ(matrix.rows(), rows);
     EXPECT_EQ(matrix.cols(), cols);
@@ -71,10 +69,8 @@ TEST(ConstructorTests, specifiedMatrixArray_RectangularMatrix)
     Matrix<int> matrix(arr, rows, cols);
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(matrix.elementAt(r, c), arr[r * cols + c]);
-    }
 
     EXPECT_EQ(matrix.rows(), rows);
     EXPECT_EQ(matrix.cols(), cols);
@@ -93,10 +89,8 @@ TEST(ConstructorTests, specifiedMatrixVector_SquareMatrix)
     Matrix<int> matrix(vec, rows, cols);
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(matrix.elementAt(r, c), vec[r * cols + c]);
-    }
 
     EXPECT_EQ(matrix.rows(), rows);
     EXPECT_EQ(matrix.cols(), cols);
@@ -115,10 +109,8 @@ TEST(ConstructorTests, specifiedMatrixVector_RectangularMatrix)
     Matrix<int> matrix(vec, rows, cols);
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(matrix.elementAt(r, c), vec[r * cols + c]);
-    }
 
     EXPECT_EQ(matrix.rows(), rows);
     EXPECT_EQ(matrix.cols(), cols);
@@ -142,10 +134,8 @@ TEST(ConstructorTests, MatrixCopy)
     EXPECT_EQ(matrixA.cols(), matrixB.cols());
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(matrixA.elementAt(r, c), matrixB.elementAt(r, c));
-    }
 }
 
 TEST(Addition, Addition_SquareMatrix)
@@ -162,16 +152,14 @@ TEST(Addition, Addition_SquareMatrix)
         arrA[i] = i;
         arrB[i] = targetValue - i;
     }
-
+    
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> matrixB(arrB, rows, cols);
     Matrix<int> &additionResult = matrixA + matrixB;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(additionResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(Addition, Addition_RectangularMatrix)
@@ -194,10 +182,8 @@ TEST(Addition, Addition_RectangularMatrix)
     Matrix<int> &additionResult = matrixA + matrixB;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(additionResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(Subtraction, Subtraction_SquareMatrix)
@@ -220,10 +206,8 @@ TEST(Subtraction, Subtraction_SquareMatrix)
     Matrix<int> &subtractionResult = matrixA - matrixB;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(subtractionResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(Subtraction, Subtraction_RectangularMatrix)
@@ -246,10 +230,8 @@ TEST(Subtraction, Subtraction_RectangularMatrix)
     Matrix<int> &subtractionResult = matrixA - matrixB;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(subtractionResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(ScalarMultiplication, Multiplication_SquareMatrix)
@@ -267,10 +249,8 @@ TEST(ScalarMultiplication, Multiplication_SquareMatrix)
     Matrix<int> &scalarMultiplicationResult = matrixA * 2;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(ScalarMultiplication, Multiplication_RectangularMatrix)
@@ -288,10 +268,8 @@ TEST(ScalarMultiplication, Multiplication_RectangularMatrix)
     Matrix<int> &scalarMultiplicationResult = matrixA * 2;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(MatrixMultiplication, Multiplication_SquareMatrix)
@@ -374,10 +352,8 @@ TEST(scalarDivision, Division_SquareMatrix)
     Matrix<int> &scalarDivisionResult = matrixA / 2;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(scalarDivisionResult.elementAt(r, c), targetValue);
-    }
 }
 
 TEST(scalarDivision, Division_RectangularMatrix)
@@ -395,10 +371,8 @@ TEST(scalarDivision, Division_RectangularMatrix)
     Matrix<int> &scalarMultiplicationResult = matrixA / 2;
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-    }
 }
 
 int main(int argc, char **argv)
