@@ -58,7 +58,7 @@ Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
     this->numRows = rows;
     this->numCols = cols;
 
-    mat = new int[size()];
+    mat = new T[size()];
 
     for (int i = 0; i < size(); i++)
         setElementAt(i / cols, i % cols, arr[i]);
@@ -81,7 +81,7 @@ Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
     this->numRows = rows;
     this->numCols = cols;
 
-    mat = new int[size()];
+    mat = new T[size()];
 
     for (int i = 0; i < size(); i++)
         setElementAt(i / cols, i % cols, arr[i]);
@@ -101,7 +101,7 @@ Matrix<T>::Matrix(Matrix<T> &matrix)
     this->numRows = matrix.rows();
     this->numCols = matrix.cols();
 
-    mat = new int[matrix.size()];
+    mat = new T[matrix.size()];
 
     memcpy(mat, matrix.flatten(), sizeof(int *));
 }
@@ -109,13 +109,14 @@ Matrix<T>::Matrix(Matrix<T> &matrix)
 template <typename T>
 Matrix<T>::~Matrix()
 {
-    delete[] mat;
+    if (mat != nullptr)
+        delete[] mat;
 
-    clReleaseProgram(program);
-    if (kernelCreated)
-        clReleaseKernel(kernel);
-    clReleaseCommandQueue(commands);
-    clReleaseContext(context);
+    CL_CHECK(clReleaseProgram(program));
+    // if (kernelCreated)
+    // CL_CHECK(clReleaseKernel(kernel));
+    CL_CHECK(clReleaseCommandQueue(commands));
+    CL_CHECK(clReleaseContext(context));
 }
 
 /**
@@ -202,9 +203,7 @@ void Matrix<T>::print()
     for (int r = 0; r < numRows; r++)
     {
         for (int c = 0; c < numCols; c++)
-        {
             cout << elementAt(r, c) << " ";
-        }
         cout << endl;
     }
 }
@@ -228,10 +227,9 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     T *resultArr = new int[size()];
     T *flattenedMatrix = matrix.flatten();
 
-    int numElements = size();
     int memSize = size() * sizeof(T *);
 
-    loadOpenClKernel("matrixAdd");
+    loadOpenClKernel("matrixAddition");
 
     deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, memSize, mat, &err));
     deviceInputArrayB = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, memSize, flattenedMatrix, &err));
@@ -241,15 +239,10 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&deviceInputArrayB));
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&deviceOutputArray));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
-    CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), (void *)&numElements));
 
-    CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelCompletion));
+    executeKernel(commands, kernel, memSize, deviceOutputArray, resultArr);
 
-    CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, memSize, resultArr, 0, nullptr, nullptr));
-
-    clReleaseMemObject(deviceInputArrayA);
-    clReleaseMemObject(deviceInputArrayB);
-    clReleaseMemObject(deviceOutputArray);
+    releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -274,9 +267,7 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
     T *flattenedMatrix = matrix.flatten();
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] - flattenedMatrix[i];
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -297,9 +288,7 @@ Matrix<T> &Matrix<T>::operator*(T scalar)
     T *resultArr = new int[size()];
 
     for (int i = 0; i < size(); i++)
-    {
         resultArr[i] = mat[i] * scalar;
-    }
 
     return *new Matrix<T>(resultArr, numRows, numCols);
 }
@@ -408,6 +397,10 @@ template <typename T>
 void Matrix<T>::detectDevices()
 {
     CL_CHECK(clGetPlatformIDs(100, platforms, &platformCount));
+    if (platformCount == 0)
+        exit(1);
+
+    CL_CHECK(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, 100, devices, &deviceCount));
 
     // printf("%d OpenCL platform(s) found:\n", platformCount);
     // for (int i = 0; i < platformCount; i++)
@@ -425,12 +418,6 @@ void Matrix<T>::detectDevices()
     //     CL_CHECK(clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, 10240, buffer, NULL));
     //     printf("\tEXTENSIONS: %s\n", buffer);
     // }
-
-    if (platformCount == 0)
-        exit(1);
-
-    // CL_CHECK(clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 100, devices, &deviceCount));
-    CL_CHECK(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, 100, devices, &deviceCount));
 
     // printf("%d OpenCL device(s) found on platform:\n", platformCount + 1);
     // for (int i = 0; i < deviceCount; i++)
@@ -534,5 +521,31 @@ void Matrix<T>::loadOpenClKernel(string kernelName)
         printf("Failed to create OpenCL compute kernel\n");
         exit(1);
     }
+
     kernelCreated = true;
+}
+
+template <typename T>
+template <class... params>
+void Matrix<T>::releaseClMemObjects(params... memObjects)
+{
+    for (auto &&memObject : {memObjects...})
+        CL_CHECK(clReleaseMemObject(memObject));
+}
+
+template <typename T>
+void Matrix<T>::executeKernel(cl_command_queue commandQueue, cl_kernel kernel, int outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray)
+{
+    cl_event kernelCompletion;
+
+    CL_CHECK(clEnqueueNDRangeKernel(commandQueue, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelCompletion));
+
+    CL_CHECK(clFinish(commandQueue));
+
+    CL_CHECK(clWaitForEvents(1, &kernelCompletion));
+    CL_CHECK(clReleaseEvent(kernelCompletion));
+
+    CL_CHECK(clEnqueueReadBuffer(commandQueue, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, nullptr));
+
+    CL_CHECK(clFinish(commandQueue));
 }

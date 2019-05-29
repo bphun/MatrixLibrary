@@ -1,31 +1,16 @@
-/* kernel.cl 
- * Matrix multiplication: C = A * B.
- * Device code.
- */
- 
 
-// OpenCL Kernel
-__kernel void
-testKernel(__global float* C, 
-          __global float* A, 
-          __global float* B, 
-          int wA, int wB)
+__kernel void matrixAddition(__global int* inputArrA, __global int* inputArrB, __global int* outputArr, int numCols)
 {
-  
-   int tx = get_global_id(0); 
-   int ty = get_global_id(1);
- 
-   // value stores the element that is 
-   // computed by the thread
-   float value = 0;
-   for (int k = 0; k < wA; ++k)
-   {
-      float elementA = A[ty * wA + k];
-      float elementB = B[k * wB + tx];
-      value += elementA * elementB;
-   }
- 
-   // Write the matrix to device memory each 
-   // thread writes one element
-   C[ty * wA + tx] = value;
+   int tX = get_global_id(0); 
+   int tY = get_global_id(1);
+
+   outputArr[tY * numCols + tX] = inputArrA[tY * numCols + tX] + inputArrB[tY * numCols + tX];
+}
+
+__kernel void matrixSubtract(__global int* inputArrA, __global int* inputArrB, __global int* outputArr, int numCols)
+{
+   int tX = get_global_id(0); 
+   int tY = get_global_id(1);
+
+   outputArr[tY * numCols + tX] = inputArrA[tY * numCols + tX] - inputArrB[tY * numCols + tX];
 }

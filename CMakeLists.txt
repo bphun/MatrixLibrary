@@ -5,7 +5,7 @@ project(MatrixLibrary)
 set(MatrixLibrary_VERSION_MAJOR 0)
 set(MatrixLibrary_VERSION_MINOR 1)
 
-add_compile_options(-Wall -std=c++11)
+add_compile_options(-Wall -std=c++11 -g)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)

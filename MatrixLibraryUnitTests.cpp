@@ -29,12 +29,8 @@ TEST(ConstructorTests, rowAndColumnConstructor)
     Matrix<int> matrix(rows, cols);
 
     for (int r = 0; r < rows; r++)
-    {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrix.elementAt(r, c), 0);
-        }
-    }
 
     EXPECT_EQ(matrix.rows(), rows);
     EXPECT_EQ(matrix.cols(), cols);
@@ -48,18 +44,14 @@ TEST(ConstructorTests, specifiedMatrixArray_SquareMatrix)
     int arr[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arr[i] = i;
-    }
 
     Matrix<int> matrix(arr, rows, cols);
 
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrix.elementAt(r, c), arr[r * cols + c]);
-        }
     }
 
     EXPECT_EQ(matrix.rows(), rows);
@@ -74,18 +66,14 @@ TEST(ConstructorTests, specifiedMatrixArray_RectangularMatrix)
     int arr[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arr[i] = i;
-    }
 
     Matrix<int> matrix(arr, rows, cols);
 
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrix.elementAt(r, c), arr[r * cols + c]);
-        }
     }
 
     EXPECT_EQ(matrix.rows(), rows);
@@ -100,18 +88,14 @@ TEST(ConstructorTests, specifiedMatrixVector_SquareMatrix)
     vector<int> vec;
 
     for (int i = 0; i < rows * cols; i++)
-    {
         vec.push_back(i);
-    }
 
     Matrix<int> matrix(vec, rows, cols);
 
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrix.elementAt(r, c), vec[r * cols + c]);
-        }
     }
 
     EXPECT_EQ(matrix.rows(), rows);
@@ -126,18 +110,14 @@ TEST(ConstructorTests, specifiedMatrixVector_RectangularMatrix)
     vector<int> vec;
 
     for (int i = 0; i < rows * cols; i++)
-    {
         vec.push_back(i);
-    }
 
     Matrix<int> matrix(vec, rows, cols);
 
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrix.elementAt(r, c), vec[r * cols + c]);
-        }
     }
 
     EXPECT_EQ(matrix.rows(), rows);
@@ -152,9 +132,7 @@ TEST(ConstructorTests, MatrixCopy)
     vector<int> vec;
 
     for (int i = 0; i < rows * cols; i++)
-    {
         vec.push_back(i);
-    }
 
     Matrix<int> matrixA(vec, rows, cols);
 
@@ -166,17 +144,15 @@ TEST(ConstructorTests, MatrixCopy)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(matrixA.elementAt(r, c), matrixB.elementAt(r, c));
-        }
     }
 }
 
 TEST(Addition, Addition_SquareMatrix)
 {
     const int targetValue = 5;
-    const int rows = 100;
-    const int cols = 100;
+    const int rows = 10;
+    const int cols = 10;
 
     int arrA[rows * cols];
     int arrB[rows * cols];
@@ -194,9 +170,7 @@ TEST(Addition, Addition_SquareMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(additionResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -222,9 +196,7 @@ TEST(Addition, Addition_RectangularMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(additionResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -250,9 +222,7 @@ TEST(Subtraction, Subtraction_SquareMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(subtractionResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -278,9 +248,7 @@ TEST(Subtraction, Subtraction_RectangularMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(subtractionResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -293,9 +261,7 @@ TEST(ScalarMultiplication, Multiplication_SquareMatrix)
     int arrA[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arrA[i] = targetValue / 2;
-    }
 
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> &scalarMultiplicationResult = matrixA * 2;
@@ -303,9 +269,7 @@ TEST(ScalarMultiplication, Multiplication_SquareMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -318,9 +282,7 @@ TEST(ScalarMultiplication, Multiplication_RectangularMatrix)
     int arrA[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arrA[i] = targetValue / 2;
-    }
 
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> &scalarMultiplicationResult = matrixA * 2;
@@ -328,9 +290,7 @@ TEST(ScalarMultiplication, Multiplication_RectangularMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -408,9 +368,7 @@ TEST(scalarDivision, Division_SquareMatrix)
     int arrA[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arrA[i] = targetValue * 2;
-    }
 
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> &scalarDivisionResult = matrixA / 2;
@@ -418,9 +376,7 @@ TEST(scalarDivision, Division_SquareMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(scalarDivisionResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
@@ -433,9 +389,7 @@ TEST(scalarDivision, Division_RectangularMatrix)
     int arrA[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
-    {
         arrA[i] = targetValue * 2;
-    }
 
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> &scalarMultiplicationResult = matrixA / 2;
@@ -443,15 +397,27 @@ TEST(scalarDivision, Division_RectangularMatrix)
     for (int r = 0; r < rows; r++)
     {
         for (int c = 0; c < cols; c++)
-        {
             EXPECT_EQ(scalarMultiplicationResult.elementAt(r, c), targetValue);
-        }
     }
 }
 
 int main(int argc, char **argv)
 {
-    Matrix<int> mat;
-    // ::testing::InitGoogleMock(&argc, argv);
-    // return RUN_ALL_TESTS();
+    // Matrix<int>* mat = new Matrix<int>();
+    // printf("Sadfasdf\n");
+    // delete mat;
+
+    // int arrA[10 * 10];
+
+    // for (int i = 0; i < 10 * 10; i++)
+    // {
+    //     arrA[i] = i;
+    // }
+
+    // Matrix<int> matrixA(arrA, 10, 10);
+
+    // matrixA.print();
+
+    ::testing::InitGoogleMock(&argc, argv);
+    return RUN_ALL_TESTS();
 }

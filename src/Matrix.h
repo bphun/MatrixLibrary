@@ -22,26 +22,26 @@ void pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *
     printf("OpenCL Error (via pfn_notify): %s\n", errinfo);
 }
 
-#define CL_CHECK(_expr)                                                          \
-    do                                                                           \
-    {                                                                            \
-        cl_int _err = _expr;                                                     \
-        if (_err == CL_SUCCESS)                                                  \
-            break;                                                               \
+#define CL_CHECK(_expr)                                                         \
+    do                                                                          \
+    {                                                                           \
+        cl_int _err = _expr;                                                    \
+        if (_err == CL_SUCCESS)                                                 \
+            break;                                                              \
         fprintf(stderr, "OpenCL Error: '%s' returned %d\n", #_expr, (int)_err); \
-        abort();                                                                 \
+        abort();                                                                \
     } while (0)
 
-#define CL_CHECK_ERR(_expr)                                                          \
-    ({                                                                               \
-        cl_int _err = CL_INVALID_VALUE;                                              \
-        decltype(_expr) _ret = _expr;                                                \
-        if (!_ret)                                                                   \
-        {                                                                            \
+#define CL_CHECK_ERR(_expr)                                                         \
+    ({                                                                              \
+        cl_int _err = CL_INVALID_VALUE;                                             \
+        decltype(_expr) _ret = _expr;                                               \
+        if (!_ret)                                                                  \
+        {                                                                           \
             fprintf(stderr, "OpenCL Error: '%s' returned %d\n", #_expr, (int)_err); \
-            abort();                                                                 \
-        }                                                                            \
-        _ret;                                                                        \
+            abort();                                                                \
+        }                                                                           \
+        _ret;                                                                       \
     })
 
 #endif
@@ -73,8 +73,6 @@ private:
     cl_uint deviceCount;
     cl_uint platformCount;
 
-    cl_event kernelCompletion;
-
     cl_platform_id platforms[100];
     cl_device_id devices[100];
 
@@ -89,7 +87,10 @@ private:
     void createOpenClComputeContext();
     void buildOpenClProgramExecutable(string);
     void loadOpenClKernel(string);
+    void executeKernel(cl_command_queue, cl_kernel, int, cl_mem, T *);
 
+    template <class... params>
+    void releaseClMemObjects(params... memObjects);
 #endif
 
 public:
