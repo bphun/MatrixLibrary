@@ -5,7 +5,7 @@ project(MatrixLibrary)
 set(MatrixLibrary_VERSION_MAJOR 0)
 set(MatrixLibrary_VERSION_MINOR 1)
 
-add_compile_options(-Wall -std=c++11 -g)
+add_compile_options(-Wall -std=c++11 -g -pthread)
 
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -41,12 +41,16 @@ endif()
 
 enable_testing()
 
-add_executable(matrixlibraryperformancetests testing/MatrixLibraryPerformanceTests.cpp)
+set(OPENCL 1)
 
-set(OPENCL 0)
-add_executable(matrixlibraryunittests testing/MatrixLibraryUnitTests.cpp)
+set(PERFORMANCE_TEST_SRC "testing/MatrixLibraryPerformanceTests.cpp")
+set(UNIT_TEST_SRC "testing/MatrixLibraryUnitTests.cpp")
+
+add_executable(matrixlibraryperformancetests ${PERFORMANCE_TEST_SRC})
+add_executable(matrixlibraryunittests ${UNIT_TEST_SRC})
 
 if (OPENCL)
+  add_compile_definitions(DEBUG)
   add_compile_definitions(OPENCL_ENABLE)
   add_compile_definitions(CL_SILENCE_DEPRECATION)
 
@@ -54,11 +58,13 @@ if (OPENCL)
   include_directories(${OpenCL_INCLUDE_DIRS})
   link_directories(${OpenCL_LIBRARY})
 
+  find_package (Threads)
+
   target_include_directories (matrixlibraryperformancetests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
   target_include_directories (matrixlibraryunittests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-  target_link_libraries(matrixlibraryperformancetests ${OpenCL_LIBRARY})
-  target_link_libraries(matrixlibraryunittests ${OpenCL_LIBRARY})
+  target_link_libraries(matrixlibraryperformancetests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  target_link_libraries(matrixlibraryunittests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 target_link_libraries(matrixlibraryunittests gtest_main gmock_main)

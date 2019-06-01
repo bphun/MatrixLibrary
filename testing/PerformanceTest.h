@@ -1,9 +1,9 @@
 #ifndef PERFORMANCE_TEST
 #define PERFORMANCE_TEST
 
-#define MATRIX_ROWS 512
-#define MATRIX_COLS 512
-#define NUM_TRIALS_PER_TEST 50
+#define MATRIX_ROWS 100
+#define MATRIX_COLS 100
+#define NUM_TRIALS_PER_TEST 10
 
 struct PerformanceTest
 {
@@ -37,10 +37,8 @@ struct PerformanceTest
     {
         double minExecutionTime = executionTimes[0];
         for (int i = 0; i < NUM_TRIALS_PER_TEST; i++)
-        {
-            if (minExecutionTime < executionTimes[i])
+            if (executionTimes[i] < minExecutionTime)
                 minExecutionTime = executionTimes[i];
-        }
         return formatTime(minExecutionTime);
     }
 
@@ -48,22 +46,21 @@ struct PerformanceTest
     {
         double maxExecutionTime = executionTimes[0];
         for (int i = 0; i < NUM_TRIALS_PER_TEST; i++)
-        {
-            if (maxExecutionTime > executionTimes[i])
+            if (executionTimes[i] > maxExecutionTime)
                 maxExecutionTime = executionTimes[i];
-        }
         return formatTime(maxExecutionTime);
     }
 
     string formatTime(double time)
     {
-        // printf("%0.4f\n", executionTimeNs);
-        if (time >= 100000 && time < 1000000)
-            return to_string(time / 1000) + "us"; //  Convert to microseconds
-        else if (time >= 1000000)
-            return to_string(time / 1000000) + "ms"; //  Convert to milliseconds
-        else
-            return to_string(time) + "ns"; //  Dont do any conversions, return time in nanoseconds
+        // printf("%0.4fns\n", time);
+        return to_string(time) + "ns";
+        // if (time >= 100000 && time < 1000000)
+        //     return to_string(time / 1000) + "us"; //  Convert to microseconds
+        // else if (time >= 1000000)
+        //     return to_string(time / 1000000) + "ms"; //  Convert to milliseconds
+        // else
+        //     return to_string(time) + "ns"; //  Dont do any conversions, return time in nanoseconds
     }
 
     void writeDataToCsv(fstream file)
