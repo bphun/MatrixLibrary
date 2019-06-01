@@ -54,8 +54,8 @@ cl_kernel kernel;          //   compute kernel
 cl_uint deviceCount;
 cl_uint platformCount;
 
-cl_platform_id platforms[100];
-cl_device_id devices[100];
+cl_platform_id platforms[10];
+cl_device_id devices[10];
 
 cl_mem deviceInputArrayA;
 cl_mem deviceInputArrayB;
