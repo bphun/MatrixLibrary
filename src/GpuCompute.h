@@ -27,7 +27,7 @@ using namespace std;
     ({                                                                              \
         cl_int _err = CL_INVALID_VALUE;                                             \
         decltype(_expr) _ret = _expr;                                               \
-        if (!_ret || err != CL_SUCCESS)                                             \
+        if (err != CL_SUCCESS || !_ret)                                             \
         {                                                                           \
             fprintf(stderr, "OpenCL Error: '%s' returned %d\n", #_expr, (int)_err); \
             abort();                                                                \
@@ -57,11 +57,7 @@ cl_uint platformCount;
 cl_platform_id platforms[10];
 cl_device_id devices[10];
 
-cl_mem deviceInputArrayA;
-cl_mem deviceInputArrayB;
-cl_mem deviceOutputArray;
-
-void pfn_notify(const char *, const void *, size_t , void *);
+void pfn_notify(const char *, const void *, size_t, void *);
 
 void detectDevices();
 
@@ -88,7 +84,7 @@ void loadOpenClKernel(string);
  * Releases OpenCL cl_mem references
  * 
  * @param memObjects The cl_mem references that will be released
- */ 
+ */
 template <class... params>
 void releaseClMemObjects(params...);
 
@@ -98,6 +94,11 @@ void releaseClMemObjects(params...);
 template <typename T>
 void executeKernel(cl_command_queue, cl_kernel, int, cl_mem, T *);
 
+/**
+ * Block thread until cl_event is done executing
+ * 
+ * @param event Event that will be 
+ */
 void wait(cl_event);
 
 /*
@@ -109,6 +110,11 @@ void wait(cl_event);
  */
 template <typename T>
 void getKernelOutputArray(int outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray);
+
+/**
+ * Computes an optimal local and global work size for the current workload
+ */
+void computeLocalAndGlobalWorkSize();
 
 /**
  * Initialize the OpenCL compute context and builds the compute program executable

@@ -1,15 +1,4 @@
-#include <iostream>
-#include <ctime>
-#include <ratio>
-#include <chrono>
-#include <fstream>
-
-#include "../src/Matrix.h"
 #include "PerformanceTest.h"
-
-#include "../src/GpuCompute.h"
-
-using namespace std::chrono;
 
 //  Seg fault may occur when the matrix has more than 1,440,000 elements
 
@@ -26,11 +15,6 @@ void matrixAdditionTest();
 
 int arrA[MATRIX_ROWS * MATRIX_COLS];
 int arrB[MATRIX_ROWS * MATRIX_COLS];
-
-void buildProgramExec()
-{
-    buildOpenClProgramExecutable(KERNEL_FILE_PATH);
-}
 
 int main()
 {
@@ -53,8 +37,8 @@ int main()
     performanceTests[2] = new PerformanceTest("Specified matrix array", specifiedMatrixArrayConstructorTest);
     performanceTests[3] = new PerformanceTest("Matrix addition", matrixAdditionTest);
     performanceTests[4] = new PerformanceTest("Scalar division", scalarDivisionTest);
-    performanceTests[5] = new PerformanceTest("Matrix multiplication", matrixMultiplicationTest);
-    performanceTests[6] = new PerformanceTest("Scalar multiplication", scalarMultiplicationTest);
+    performanceTests[5] = new PerformanceTest("Scalar multiplication", scalarMultiplicationTest);
+    performanceTests[6] = new PerformanceTest("Matrix multiplication", matrixMultiplicationTest);
     performanceTests[7] = new PerformanceTest("Matrix subtraction", matrixSubtractionTest);
 
     printf("Executing %d test(s) with %dx%d matrices. %d iterations/test\n", numTests, MATRIX_ROWS, MATRIX_COLS, NUM_TRIALS_PER_TEST);

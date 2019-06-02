@@ -143,11 +143,10 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
 
     T *resultArr = new T[size()];
     T *flattenedArr = matrix.flatten();
-    int memSize = size() * sizeof(T *);
 
-    deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, mat, &err));
-    deviceInputArrayB = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, flattenedArr, &err));
-    deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, memSize, resultArr, &err));
+    cl_mem deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), mat, &err));
+    cl_mem deviceInputArrayB = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), flattenedArr, &err));
+    cl_mem deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(T *), resultArr, &err));
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&deviceInputArrayA));
     CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&deviceInputArrayB));
@@ -155,6 +154,8 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
     executeKernel();
+
+    getKernelOutputArray(sizeof(T *), deviceOutputArray, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
 
@@ -176,11 +177,10 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
 
     T *resultArr = new T[size()];
     T *flattenedArr = matrix.flatten();
-    int memSize = size() * sizeof(T *);
 
-    deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, mat, &err));
-    deviceInputArrayB = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, flattenedArr, &err));
-    deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, memSize, resultArr, &err));
+    cl_mem deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), mat, &err));
+    cl_mem deviceInputArrayB = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), flattenedArr, &err)); /* ERRROR */
+    cl_mem deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(T *), resultArr, &err));
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&deviceInputArrayA));
     CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&deviceInputArrayB));
@@ -188,6 +188,8 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
     executeKernel();
+
+    getKernelOutputArray(sizeof(T *), deviceOutputArray, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
 
@@ -200,23 +202,23 @@ template <typename T>
 Matrix<T> &Matrix<T>::operator*(T scalar)
 {
     if (numRows <= 0 || numCols <= 0)
-        throw invalid_argument("Scalar multiplcation requires a non-empty matrix");
+        throw invalid_argument("Scalar division requires a non-empty matrix");
 
     T *resultArr = new T[size()];
 
-    int memSize = size() * sizeof(T *);
-
     loadOpenClKernel("scalarMultiplication");
 
-    deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, mat, &err));
-    deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_WRITE_ONLY, memSize, nullptr, &err));
+    cl_mem deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), mat, &err));
+    cl_mem deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(T *), nullptr, &err));
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&deviceInputArrayA));
     CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&deviceOutputArray));
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(T), (void *)&scalar));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    // executeKernel();
+    executeKernel();
+
+    getKernelOutputArray(sizeof(T *), deviceOutputArray, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceOutputArray);
 
@@ -258,19 +260,19 @@ Matrix<T> &Matrix<T>::operator/(T scalar)
 
     T *resultArr = new T[size()];
 
-    int memSize = size() * sizeof(T *);
-
     loadOpenClKernel("scalarMultiplication");
 
-    deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, memSize, mat, &err));
-    deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_WRITE_ONLY, memSize, nullptr, &err));
+    cl_mem deviceInputArrayA = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(T *), mat, &err));
+    cl_mem deviceOutputArray = CL_CHECK_ERR(clCreateBuffer(context, CL_MEM_WRITE_ONLY, sizeof(T *), nullptr, &err));
 
     CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&deviceInputArrayA));
     CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&deviceOutputArray));
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(T), (void *)&scalar));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    // executeKernel();
+    executeKernel();
+
+    getKernelOutputArray(sizeof(T *), deviceOutputArray, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceOutputArray);
 

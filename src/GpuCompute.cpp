@@ -104,19 +104,21 @@ void buildOpenClProgramExecutable(string kernelFilePath)
 void loadOpenClKernel(string kernelName)
 {
     kernel = CL_CHECK_ERR(clCreateKernel(program, &kernelName[0u], &err));
-
-    kernelCreated = true;
 }
 
 template <class... params>
 void releaseClMemObjects(params... memObjects)
 {
     for (auto &&memObject : {memObjects...})
-        CL_CHECK(clReleaseMemObject(memObject));
+    {
+        if (memObject)
+            CL_CHECK(clReleaseMemObject(memObject));
+    }
 }
 
 void wait(cl_event event)
 {
+    CL_CHECK(clFlush(commands));
     CL_CHECK(clFinish(commands));
 
     CL_CHECK(clWaitForEvents(1, &event));
@@ -125,21 +127,31 @@ void wait(cl_event event)
 
 void executeKernel()
 {
-    cl_event kernelCompletion;
+    cl_event kernelEvent;
 
-    CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelCompletion));
+    // computeLocalAndGlobalWorkSize();
 
-    wait(kernelCompletion);
+    CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelEvent));
+
+    wait(kernelEvent);
 }
 
 template <typename T>
 void getKernelOutputArray(int outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray)
 {
-    cl_event readCompletion;
-    
-    CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, &readCompletion));
+    cl_event readEvent;
 
-    wait(readCompletion);
+    CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, &readEvent));
+
+    wait(readEvent);
+}
+
+void computeLocalAndGlobalWorkSize()
+{
+    // localWorkSize[0] = 16;
+    // localWorkSize[1] = 16;
+    // globalWorkSize[0] = 512;
+    // globalWorkSize[1] = 512;
 }
 
 void initOpenCl()
@@ -150,19 +162,16 @@ void initOpenCl()
 
     localWorkSize[0] = 16;
     localWorkSize[1] = 16;
-    globalWorkSize[0] = 512;
-    globalWorkSize[1] = 512;
+    globalWorkSize[0] = 32;
+    globalWorkSize[1] = 32;
 }
 
 void deinitOpenCl()
 {
-    CL_CHECK(clReleaseProgram(program));
-    if (!commands)
-        CL_CHECK(clReleaseCommandQueue(commands));
-    CL_CHECK(clReleaseContext(context));
+    CL_CHECK(clFlush(commands));
+    CL_CHECK(clFinish(commands));
 
-    // CL_CHECK(clReleaseProgram(program));
     // CL_CHECK(clReleaseKernel(kernel));
-    // CL_CHECK(clReleaseCommandQueue(commands));
-    // CL_CHECK(clReleaseContext(context));
+    CL_CHECK(clReleaseProgram(program));
+    CL_CHECK(clReleaseContext(context));
 }

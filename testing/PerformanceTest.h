@@ -1,6 +1,21 @@
 #ifndef PERFORMANCE_TEST
 #define PERFORMANCE_TEST
 
+#include <iostream>
+#include <ctime>
+#include <ratio>
+#include <chrono>
+#include <fstream>
+
+#include "../src/Matrix.h"
+#include "PerformanceTest.h"
+
+#ifdef OPENCL_ENABLE
+#include "../src/GpuCompute.h"
+#endif /* OPENCL_ENABLE */
+
+using namespace std::chrono;
+
 #define MATRIX_ROWS 100
 #define MATRIX_COLS 100
 #define NUM_TRIALS_PER_TEST 10
