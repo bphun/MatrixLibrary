@@ -39,7 +39,7 @@ using namespace std;
 
 mutex _lock;
 condition_variable_any _cond;
-bool clContextCreated;
+bool clContextCreated, devicesDetected;
 
 int err;
 bool kernelCreated = false;
@@ -51,14 +51,16 @@ cl_command_queue commands; //   compute command queue
 cl_program program;        //   compute program
 cl_kernel kernel;          //   compute kernel
 
-cl_uint deviceCount;
-cl_uint platformCount;
+cl_uint deviceCount, platformCount;
 
 cl_platform_id platforms[10];
 cl_device_id devices[10];
 
 void pfn_notify(const char *, const void *, size_t, void *);
 
+/**
+ * Detect available OpenCL devices in the system 
+ */
 void detectDevices();
 
 /**
@@ -109,7 +111,7 @@ void wait(cl_event);
  * @param hostOutputArray Host output array used to transfer data from the device to the host
  */
 template <typename T>
-void getKernelOutputArray(int outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray);
+void getKernelOutputArray(size_t, cl_mem, T *);
 
 /**
  * Computes an optimal local and global work size for the current workload
@@ -118,8 +120,6 @@ void computeLocalAndGlobalWorkSize();
 
 /**
  * Initialize the OpenCL compute context and builds the compute program executable
- * 
- * TODO: run on other thread to improve intialization times 
  */
 void initOpenCl();
 

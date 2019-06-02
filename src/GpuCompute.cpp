@@ -13,6 +13,11 @@ void detectDevices()
 
     CL_CHECK(clGetDeviceIDs(platforms[0], CL_DEVICE_TYPE_GPU, 10, devices, &deviceCount));
 
+    _lock.lock();
+    devicesDetected = true;
+    _cond.notify_all();
+    _lock.unlock();
+
 #if DEBUG
     // printf("%d OpenCL platform(s) found:\n", platformCount);
     // for (int i = 0; i < platformCount; i++)
@@ -58,7 +63,18 @@ void detectDevices()
 
 void createOpenClComputeContext()
 {
+    _lock.lock();
+    if (!devicesDetected)
+        _cond.wait(_lock);
+    _lock.unlock();
+
     context = CL_CHECK_ERR(clCreateContext(nullptr, deviceCount, devices, pfn_notify, nullptr, &err));
+
+    _lock.lock();
+    clContextCreated = true;
+    _cond.notify_all();
+    _lock.unlock();
+
     commands = CL_CHECK_ERR(clCreateCommandQueue(context, devices[0], 0, &err));
 }
 
@@ -85,6 +101,11 @@ void buildOpenClProgramExecutable(string kernelFilePath)
     kernelSource[fileSize] = '\0';
     fclose(file);
 
+    _lock.lock();
+    if (!clContextCreated)
+        _cond.wait(_lock);
+    _lock.unlock();
+
     program = CL_CHECK_ERR(clCreateProgramWithSource(context, 1, (const char **)&kernelSource, nullptr, &err));
 
     err = clBuildProgram(program, 0, nullptr, nullptr, nullptr, nullptr);
@@ -94,7 +115,7 @@ void buildOpenClProgramExecutable(string kernelFilePath)
         char buffer[2048];
 
         printf("Failed to build OpenCL program executable\n");
-        clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &buildInfoLength);
+        CL_CHECK(clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &buildInfoLength));
 
         printf("Program build info:\n%s", buffer);
         exit(1);
@@ -110,16 +131,14 @@ template <class... params>
 void releaseClMemObjects(params... memObjects)
 {
     for (auto &&memObject : {memObjects...})
-    {
         if (memObject)
             CL_CHECK(clReleaseMemObject(memObject));
-    }
 }
 
 void wait(cl_event event)
 {
-    CL_CHECK(clFlush(commands));
     CL_CHECK(clFinish(commands));
+    CL_CHECK(clFlush(commands));
 
     CL_CHECK(clWaitForEvents(1, &event));
     CL_CHECK(clReleaseEvent(event));
@@ -127,23 +146,24 @@ void wait(cl_event event)
 
 void executeKernel()
 {
-    cl_event kernelEvent;
+    cl_event kernelExecEvent;
 
     // computeLocalAndGlobalWorkSize();
 
-    CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelEvent));
+    CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelExecEvent));
 
-    wait(kernelEvent);
+    wait(kernelExecEvent);
 }
 
 template <typename T>
-void getKernelOutputArray(int outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray)
+void getKernelOutputArray(size_t outputArraySize, cl_mem deviceOutputArray, T *hostOutputArray)
 {
-    cl_event readEvent;
+    cl_event bufferReadEvent;
 
-    CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, &readEvent));
+    CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, &bufferReadEvent));
 
-    wait(readEvent);
+
+    wait(bufferReadEvent);
 }
 
 void computeLocalAndGlobalWorkSize()
@@ -156,22 +176,25 @@ void computeLocalAndGlobalWorkSize()
 
 void initOpenCl()
 {
+    // thread createComputeContextThread(createOpenClComputeContext);
+
     detectDevices();
     createOpenClComputeContext();
     buildOpenClProgramExecutable(KERNEL_FILE_PATH);
+    // createComputeContextThread.join();
 
     localWorkSize[0] = 16;
     localWorkSize[1] = 16;
-    globalWorkSize[0] = 32;
-    globalWorkSize[1] = 32;
+    globalWorkSize[0] = 1024;
+    globalWorkSize[1] = 1024;
 }
 
 void deinitOpenCl()
 {
-    CL_CHECK(clFlush(commands));
-    CL_CHECK(clFinish(commands));
+    // CL_CHECK(clFlush(commands));
+    // CL_CHECK(clFinish(commands));
 
     // CL_CHECK(clReleaseKernel(kernel));
-    CL_CHECK(clReleaseProgram(program));
+    // CL_CHECK(clReleaseProgram(program));
     CL_CHECK(clReleaseContext(context));
 }
