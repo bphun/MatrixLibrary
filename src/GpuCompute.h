@@ -93,8 +93,8 @@ void releaseClMemObjects(params...);
 /**
  * Executes a specified kernel
  */
-template <typename T>
-void executeKernel(cl_command_queue, cl_kernel, int, cl_mem, T *);
+template <typename T, typename... deviceMemObjectType>
+void executeKernel(size_t, cl_mem, T *, T *, deviceMemObjectType&&...);
 
 /**
  * Block thread until cl_event is done executing
@@ -112,11 +112,6 @@ void wait(cl_event);
  */
 template <typename T>
 void getKernelOutputArray(size_t, cl_mem, T *);
-
-/**
- * Computes an optimal local and global work size for the current workload
- */
-void computeLocalAndGlobalWorkSize();
 
 /**
  * Initialize the OpenCL compute context and builds the compute program executable

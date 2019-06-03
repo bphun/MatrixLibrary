@@ -154,13 +154,9 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&deviceOutputArray));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    executeKernel();
-
-    getKernelOutputArray(memSize, deviceOutputArray, resultArr);
+    executeKernel(memSize, deviceOutputArray, mat, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
-
-    memcpy(mat, resultArr, memSize);
 
     return *this;
 }
@@ -189,13 +185,9 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&deviceOutputArray));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    executeKernel();
-
-    getKernelOutputArray(memSize, deviceOutputArray, resultArr);
+    executeKernel(memSize, deviceOutputArray, mat, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
-
-    memcpy(mat, resultArr, memSize);
 
     return *this;
 }
@@ -219,13 +211,9 @@ Matrix<T> &Matrix<T>::operator*(T scalar)
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(int), (void *)&scalar));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    executeKernel();
-
-    getKernelOutputArray(memSize, deviceOutputArray, resultArr);
+    executeKernel(memSize, deviceOutputArray, mat, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceOutputArray);
-
-    memcpy(mat, resultArr, memSize);
 
     return *this;
 }
@@ -253,13 +241,9 @@ Matrix<T> &Matrix<T>::operator*(Matrix<T> &matrix)
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
     CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), (void *)&matrixCols));
 
-    executeKernel();
-
-    getKernelOutputArray(memSize, deviceOutputArray, resultArr);
+    executeKernel(memSize, deviceOutputArray, mat, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceInputArrayB, deviceOutputArray);
-
-    memcpy(mat, resultArr, memSize);
 
     return *this;
 }
@@ -292,13 +276,9 @@ Matrix<T> &Matrix<T>::operator/(T scalar)
     CL_CHECK(clSetKernelArg(kernel, 2, sizeof(T), (void *)&scalar));
     CL_CHECK(clSetKernelArg(kernel, 3, sizeof(int), (void *)&numCols));
 
-    executeKernel();
-
-    getKernelOutputArray(memSize, deviceOutputArray, resultArr);
+    executeKernel(memSize, deviceOutputArray, mat, resultArr);
 
     releaseClMemObjects(deviceInputArrayA, deviceOutputArray);
-
-    memcpy(mat, resultArr, memSize);
 
     return *this;
 }

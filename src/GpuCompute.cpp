@@ -131,8 +131,7 @@ template <class... params>
 void releaseClMemObjects(params... memObjects)
 {
     for (auto &&memObject : {memObjects...})
-        if (memObject)
-            CL_CHECK(clReleaseMemObject(memObject));
+        CL_CHECK(clReleaseMemObject(memObject));
 }
 
 void wait(cl_event event)
@@ -144,15 +143,18 @@ void wait(cl_event event)
     CL_CHECK(clReleaseEvent(event));
 }
 
-void executeKernel()
+template <typename T, typename... deviceMemObjectType>
+void executeKernel(size_t memSize, cl_mem deviceOutputArray, T *mat, T *resultArray)
 {
     cl_event kernelExecEvent;
-
-    // computeLocalAndGlobalWorkSize();
 
     CL_CHECK(clEnqueueNDRangeKernel(commands, kernel, 2, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &kernelExecEvent));
 
     wait(kernelExecEvent);
+
+    getKernelOutputArray(memSize, deviceOutputArray, resultArray);
+
+    memcpy(mat, resultArray, memSize);
 }
 
 template <typename T>
@@ -162,16 +164,7 @@ void getKernelOutputArray(size_t outputArraySize, cl_mem deviceOutputArray, T *h
 
     CL_CHECK(clEnqueueReadBuffer(commands, deviceOutputArray, CL_TRUE, 0, outputArraySize, hostOutputArray, 0, nullptr, &bufferReadEvent));
 
-
     wait(bufferReadEvent);
-}
-
-void computeLocalAndGlobalWorkSize()
-{
-    // localWorkSize[0] = 16;
-    // localWorkSize[1] = 16;
-    // globalWorkSize[0] = 512;
-    // globalWorkSize[1] = 512;
 }
 
 void initOpenCl()
