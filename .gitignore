@@ -1,3 +1,5 @@
 build/
 doxygen/
 .vscode
+testing/testResults
+**.DS_Store**
