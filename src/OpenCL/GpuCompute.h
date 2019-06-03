@@ -35,7 +35,7 @@ using namespace std;
         _ret;                                                                       \
     })
 
-#define KERNEL_FILE_PATH "../src/gpuComputeKernels.cl"
+#define KERNEL_FILE_PATH "../src/OpenCL/gpuComputeKernels.cl"
 
 mutex _lock;
 condition_variable_any _cond;
@@ -93,8 +93,8 @@ void releaseClMemObjects(params...);
 /**
  * Executes a specified kernel
  */
-template <typename T, typename... deviceMemObjectType>
-void executeKernel(size_t, cl_mem, T *, T *, deviceMemObjectType&&...);
+template <typename T>
+void executeKernel(size_t, cl_mem, T *);
 
 /**
  * Block thread until cl_event is done executing

@@ -8,6 +8,7 @@ void pfn_notify(const char *errinfo, const void *private_info, size_t cb, void *
 void detectDevices()
 {
     CL_CHECK(clGetPlatformIDs(10, platforms, &platformCount));
+
     if (platformCount == 0)
         exit(1);
 
@@ -84,8 +85,7 @@ void buildOpenClProgramExecutable(string kernelFilePath)
 
     // Open the file
     FILE *file = fopen(&kernelFilePath[0u], "r");
-    if (!file)
-    {
+    if (!file) {
         printf("Error opening kernel file %s\n", &kernelFilePath[0u]);
         exit(1);
     }
@@ -109,8 +109,7 @@ void buildOpenClProgramExecutable(string kernelFilePath)
     program = CL_CHECK_ERR(clCreateProgramWithSource(context, 1, (const char **)&kernelSource, nullptr, &err));
 
     err = clBuildProgram(program, 0, nullptr, nullptr, nullptr, nullptr);
-    if (err != CL_SUCCESS)
-    {
+    if (err != CL_SUCCESS) {
         size_t buildInfoLength;
         char buffer[2048];
 
@@ -143,8 +142,8 @@ void wait(cl_event event)
     CL_CHECK(clReleaseEvent(event));
 }
 
-template <typename T, typename... deviceMemObjectType>
-void executeKernel(size_t memSize, cl_mem deviceOutputArray, T *mat, T *resultArray)
+template <typename T>
+void executeKernel(size_t memSize, cl_mem deviceOutputArray, T *resultArray)
 {
     cl_event kernelExecEvent;
 
@@ -153,8 +152,6 @@ void executeKernel(size_t memSize, cl_mem deviceOutputArray, T *mat, T *resultAr
     wait(kernelExecEvent);
 
     getKernelOutputArray(memSize, deviceOutputArray, resultArray);
-
-    memcpy(mat, resultArray, memSize);
 }
 
 template <typename T>

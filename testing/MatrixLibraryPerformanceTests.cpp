@@ -13,8 +13,8 @@ void scalarMultiplicationTest();
 void matrixSubtractionTest();
 void matrixAdditionTest();
 
-int arrA[MATRIX_ROWS * MATRIX_COLS];
-int arrB[MATRIX_ROWS * MATRIX_COLS];
+int* arrA = new int [MATRIX_ROWS * MATRIX_COLS];
+int* arrB = new int [MATRIX_ROWS * MATRIX_COLS];
 
 int main()
 {
@@ -27,11 +27,6 @@ int main()
         arrB[i] = (MATRIX_ROWS * MATRIX_COLS) - i;
     }
 
-    // detectDevices();
-    // performanceTests[0] = new PerformanceTest("Detect OpenCL Devices", detectDevices);
-    // performanceTests[0] = new PerformanceTest("Create OpenCL compute context", createOpenClComputeContext);
-    // performanceTests[2] = new PerformanceTest("Create program executable", buildProgramExec);
-
     performanceTests[0] = new PerformanceTest("Empty Constructor", emptyConstructorTest);
     performanceTests[1] = new PerformanceTest("Specified row/col Constructor", specifiedRowColConstructorTest);
     performanceTests[2] = new PerformanceTest("Specified matrix array", specifiedMatrixArrayConstructorTest);
@@ -41,18 +36,21 @@ int main()
     performanceTests[6] = new PerformanceTest("Matrix multiplication", matrixMultiplicationTest);
     performanceTests[7] = new PerformanceTest("Matrix subtraction", matrixSubtractionTest);
 
-    printf("Executing %d test(s) with %dx%d matrices. %d iterations/test\n", numTests, MATRIX_ROWS, MATRIX_COLS, NUM_TRIALS_PER_TEST);
+    printf("Executing %d test(s) with %dx%d matrices using %s. %d iterations/test\n",
+           numTests, 
+           MATRIX_ROWS,
+           MATRIX_COLS,
+           COMPUTE_DEVICE_TYPE,
+           NUM_TRIALS_PER_TEST);
 
-    for (int i = 0; i < numTests; i++)
-    {
+    for (int i = 0; i < numTests; i++) {
         PerformanceTest *performanceTest = performanceTests[i];
 
         fstream testResultsFile("../testing/testResults/" + performanceTest->testName + ".csv", ios::out | ios::binary);
 
         testResultsFile << performanceTest->testName << "\n";
 
-        for (int n = 0; n < NUM_TRIALS_PER_TEST; n++)
-        {
+        for (int n = 0; n < NUM_TRIALS_PER_TEST; n++) {
             collectExecutionTime(performanceTest->executionTimes[n], performanceTest->testfunction);
             testResultsFile << float(performanceTest->executionTimes[n]) << std::fixed << "\n";
         }
