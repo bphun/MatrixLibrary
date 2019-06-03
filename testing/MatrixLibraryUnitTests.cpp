@@ -11,8 +11,8 @@
 
 #include "../src/Matrix.h"
 
-#define MATRIX_NUM_ROWS 4
-#define MATRIX_NUM_COLS 4
+#define MATRIX_NUM_ROWS 100
+#define MATRIX_NUM_COLS 100
 #define MATRIX_NUM_COLS_HALF MATRIX_NUM_COLS / 2
 
 using namespace std;
@@ -45,7 +45,7 @@ TEST(ConstructorTests, specifiedMatrixArray_SquareMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS;
 
-    int arr[rows * cols];
+    int *arr = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arr[i] = i;
@@ -65,7 +65,7 @@ TEST(ConstructorTests, specifiedMatrixArray_RectangularMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS_HALF;
 
-    int arr[rows * cols];
+    int* arr = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arr[i] = i;
@@ -120,26 +120,26 @@ TEST(ConstructorTests, specifiedMatrixVector_RectangularMatrix)
     EXPECT_EQ(matrix.cols(), cols);
 }
 
-TEST(ConstructorTests, MatrixCopy)
+TEST(ConstructorTests, MatrixCopy_Vector)
 {
-    // const int rows = MATRIX_NUM_ROWS;
-    // const int cols = MATRIX_NUM_COLS;
+    const int rows = MATRIX_NUM_ROWS;
+    const int cols = MATRIX_NUM_COLS;
 
-    // vector<int> vec;
+    vector<int> vec;
 
-    // for (int i = 0; i < rows * cols; i++)
-    //     vec.push_back(i);
+    for (int i = 0; i < rows * cols; i++)
+        vec.push_back(i);
 
-    // Matrix<int> matrixA(vec, rows, cols);
+    Matrix<int> matrixA(vec, rows, cols);
 
-    // Matrix<int> matrixB(matrixA);
+    Matrix<int> matrixB(matrixA);
 
-    // EXPECT_EQ(matrixA.rows(), matrixB.rows());
-    // EXPECT_EQ(matrixA.cols(), matrixB.cols());
-
-    // for (int r = 0; r < rows; r++)
-    //     for (int c = 0; c < cols; c++)
-    //         EXPECT_EQ(matrixA.elementAt(r, c), matrixB.elementAt(r, c));
+    EXPECT_EQ(matrixA.rows(), matrixB.rows());
+    EXPECT_EQ(matrixA.cols(), matrixB.cols());
+    
+    for (int r = 0; r < rows; r++)
+        for (int c = 0; c < cols; c++)
+            EXPECT_EQ(matrixA.elementAt(r, c), matrixB.elementAt(r, c));
 }
 
 TEST(Addition, Addition_SquareMatrix)
@@ -148,15 +148,14 @@ TEST(Addition, Addition_SquareMatrix)
     const int rows = 10;
     const int cols = 10;
 
-    int arrA[rows * cols];
-    int arrB[rows * cols];
+    int* arrA = new int[rows * cols];
+    int* arrB = new int[rows * cols];
 
-    for (int i = 0; i < rows * cols; i++)
-    {
+    for (int i = 0; i < rows * cols; i++) {
         arrA[i] = i;
         arrB[i] = targetValue - i;
     }
-    
+
     Matrix<int> matrixA(arrA, rows, cols);
     Matrix<int> matrixB(arrB, rows, cols);
     Matrix<int> &additionResult = matrixA + matrixB;
@@ -172,11 +171,10 @@ TEST(Addition, Addition_RectangularMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS_HALF;
 
-    int arrA[rows * cols];
-    int arrB[rows * cols];
+    int* arrA = new int[rows * cols];
+    int* arrB = new int[rows * cols];
 
-    for (int i = 0; i < rows * cols; i++)
-    {
+    for (int i = 0; i < rows * cols; i++) {
         arrA[i] = i;
         arrB[i] = targetValue - i;
     }
@@ -196,11 +194,10 @@ TEST(Subtraction, Subtraction_SquareMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS;
 
-    int arrA[rows * cols];
-    int arrB[rows * cols];
+    int* arrA = new int[rows * cols];
+    int* arrB = new int[rows * cols];
 
-    for (int i = 0; i < rows * cols; i++)
-    {
+    for (int i = 0; i < rows * cols; i++) {
         arrA[i] = 2 * targetValue;
         arrB[i] = targetValue;
     }
@@ -210,7 +207,7 @@ TEST(Subtraction, Subtraction_SquareMatrix)
     Matrix<int> &subtractionResult = matrixA - matrixB;
 
     for (int r = 0; r < rows; r++)
-        for (int c = 0; c < cols; c++)
+    for (int c = 0; c < cols; c++)
             EXPECT_EQ(subtractionResult.elementAt(r, c), targetValue);
 }
 
@@ -220,11 +217,10 @@ TEST(Subtraction, Subtraction_RectangularMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS_HALF;
 
-    int arrA[rows * cols];
-    int arrB[rows * cols];
+    int* arrA = new int[rows * cols];
+    int* arrB = new int[rows * cols];
 
-    for (int i = 0; i < rows * cols; i++)
-    {
+    for (int i = 0; i < rows * cols; i++) {
         arrA[i] = 2 * targetValue;
         arrB[i] = targetValue;
     }
@@ -244,7 +240,7 @@ TEST(ScalarMultiplication, Multiplication_SquareMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS;
 
-    int arrA[rows * cols];
+    int* arrA = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arrA[i] = targetValue / 2;
@@ -263,7 +259,7 @@ TEST(ScalarMultiplication, Multiplication_RectangularMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS_HALF;
 
-    int arrA[rows * cols];
+    int* arrA = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arrA[i] = targetValue / 2;
@@ -290,30 +286,30 @@ TEST(MatrixMultiplication, Multiplication_SquareMatrix)
     Matrix<int> matrixMultiplicationActualSolution(solutionArray, rows, cols);
 
     Matrix<int> &matrixMultiplicationCalculatedSolution = matrixA * matrixB;
-
-    EXPECT_TRUE(matrixMultiplicationCalculatedSolution.equals(matrixMultiplicationActualSolution));
-}
-
-TEST(MatrixMultiplication, Multiplication_MismatchMatrixSizes)
-{
-    const int matARows = 3;
-    const int matACols = 2;
-
-    const int matBRows = 2;
-    const int matBCols = 3;
-
-    int arrA[matARows * matACols] = {1, 2, 3, 4, 5, 6};
-    int arrB[matBRows * matBCols] = {1, 2, 3, 4, 5, 6};
-    int solutionArray[matARows * matBCols] = {9, 12, 15, 19, 26, 33, 29, 40, 51};
-
-    Matrix<int> matrixA(arrA, matARows, matACols);
-    Matrix<int> matrixB(arrB, matBRows, matBCols);
-    Matrix<int> matrixMultiplicationActualSolution(solutionArray, matARows, matBCols);
-
-    Matrix<int> &matrixMultiplicationCalculatedSolution = matrixA * matrixB;
     
     EXPECT_TRUE(matrixMultiplicationCalculatedSolution.equals(matrixMultiplicationActualSolution));
 }
+
+// TEST(MatrixMultiplication, Multiplication_MismatchMatrixSizes)
+// {
+//     const int matARows = 3;
+//     const int matACols = 2;
+
+//     const int matBRows = 2;
+//     const int matBCols = 3;
+
+//     int arrA[matARows * matACols] = {1, 2, 3, 4, 5, 6};
+//     int arrB[matBRows * matBCols] = {1, 2, 3, 4, 5, 6};
+//     int solutionArray[matARows * matBCols] = {9, 12, 15, 19, 26, 33, 29, 40, 51};
+
+//     Matrix<int> matrixA(arrA, matARows, matACols);
+//     Matrix<int> matrixB(arrB, matBRows, matBCols);
+//     Matrix<int> matrixMultiplicationActualSolution(solutionArray, matARows, matBCols);
+
+//     Matrix<int> &matrixMultiplicationCalculatedSolution = matrixA * matrixB;
+
+//     EXPECT_TRUE(matrixMultiplicationCalculatedSolution.equals(matrixMultiplicationActualSolution));
+// }
 
 // TEST(Determinant, Determinant)
 // {
@@ -347,7 +343,7 @@ TEST(scalarDivision, Division_SquareMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS;
 
-    int arrA[rows * cols];
+    int* arrA = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arrA[i] = targetValue * 2;
@@ -366,7 +362,7 @@ TEST(scalarDivision, Division_RectangularMatrix)
     const int rows = MATRIX_NUM_ROWS;
     const int cols = MATRIX_NUM_COLS_HALF;
 
-    int arrA[rows * cols];
+    int* arrA = new int[rows * cols];
 
     for (int i = 0; i < rows * cols; i++)
         arrA[i] = targetValue * 2;
@@ -381,21 +377,6 @@ TEST(scalarDivision, Division_RectangularMatrix)
 
 int main(int argc, char **argv)
 {
-    // Matrix<int>* mat = new Matrix<int>();
-    // printf("Sadfasdf\n");
-    // delete mat;
-
-    // int arrA[10 * 10];
-
-    // for (int i = 0; i < 10 * 10; i++)
-    // {
-    //     arrA[i] = i;
-    // }
-
-    // Matrix<int> matrixA(arrA, 10, 10);
-
-    // matrixA.print();
-
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
 }

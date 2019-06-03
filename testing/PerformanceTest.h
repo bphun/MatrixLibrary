@@ -10,15 +10,19 @@
 #include "../src/Matrix.h"
 #include "PerformanceTest.h"
 
-#ifdef OPENCL_ENABLE
-#include "../src/GpuCompute.h"
-#endif /* OPENCL_ENABLE */
+#ifdef ENABLE_OPENCL
+#define COMPUTE_DEVICE_TYPE "GPU"
+#elif ENABLE_OPENMP
+#define COMPUTE_DEVICE_TYPE "CPU_THREADED"
+#else
+#define COMPUTE_DEVICE_TYPE "CPU_SINGLE_THREADED"
+#endif
+
+#define MATRIX_ROWS 128
+#define MATRIX_COLS 128
+#define NUM_TRIALS_PER_TEST 10
 
 using namespace std::chrono;
-
-#define MATRIX_ROWS 100
-#define MATRIX_COLS 100
-#define NUM_TRIALS_PER_TEST 10
 
 struct PerformanceTest
 {
@@ -76,11 +80,6 @@ struct PerformanceTest
         //     return to_string(time / 1000000) + "ms"; //  Convert to milliseconds
         // else
         //     return to_string(time) + "ns"; //  Dont do any conversions, return time in nanoseconds
-    }
-
-    void writeDataToCsv(fstream file)
-    {
-        
     }
 };
 

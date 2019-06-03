@@ -41,30 +41,46 @@ endif()
 
 enable_testing()
 
-set(OPENCL 1)
-
 set(PERFORMANCE_TEST_SRC "testing/MatrixLibraryPerformanceTests.cpp")
 set(UNIT_TEST_SRC "testing/MatrixLibraryUnitTests.cpp")
 
-add_executable(matrixlibraryperformancetests ${PERFORMANCE_TEST_SRC})
-add_executable(matrixlibraryunittests ${UNIT_TEST_SRC})
+if (DEFINED ADDITIONS)
+  if (${ADDITIONS} STREQUAL "OPENCL")
+    message("GPU Mode")
+    add_compile_definitions(ENABLE_OPENCL)
+    #set(ADDITIONAL_SOURCES "src/OpenCL/ComputeMethod.cpp")
+  endif()
 
-if (OPENCL)
-  add_compile_definitions(DEBUG)
-  add_compile_definitions(OPENCL_ENABLE)
-  add_compile_definitions(CL_SILENCE_DEPRECATION)
+  if(${ADDITIONS} STREQUAL "OPENMP")
+    message("OpenMP Mode")
+    add_compile_definitions(ENABLE_OPENMP)
+    #set(ADDITIONAL_SOURCES "src/OpenMP/ComputeMethod.cpp")
+  endif()
+else()
+  message("CPU Mode")
+  #set(ADDITIONAL_SOURCES "src/SingleThreaded/ComputeMethod.cpp")
+endif()
 
-  find_package(OpenCL REQUIRED)
-  include_directories(${OpenCL_INCLUDE_DIRS})
-  link_directories(${OpenCL_LIBRARY})
+add_executable(matrixlibraryperformancetests ${PERFORMANCE_TEST_SRC} ${ADDITIONAL_SOURCES})
+add_executable(matrixlibraryunittests ${UNIT_TEST_SRC} ${ADDITIONAL_SOURCES})
 
-  find_package (Threads)
+if (DEFINED ADDITIONS)
+  if (${ADDITIONS} STREQUAL "OPENCL")
+    add_compile_definitions(DEBUG)
+    add_compile_definitions(CL_SILENCE_DEPRECATION)
 
-  target_include_directories (matrixlibraryperformancetests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-  target_include_directories (matrixlibraryunittests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    find_package(OpenCL REQUIRED)
+    include_directories(${OpenCL_INCLUDE_DIRS})
+    link_directories(${OpenCL_LIBRARY})
 
-  target_link_libraries(matrixlibraryperformancetests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
-  target_link_libraries(matrixlibraryunittests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+    find_package (Threads)
+
+    target_include_directories (matrixlibraryperformancetests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    target_include_directories (matrixlibraryunittests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+    target_link_libraries(matrixlibraryperformancetests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries(matrixlibraryunittests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  endif()
 endif()
 
 target_link_libraries(matrixlibraryunittests gtest_main gmock_main)

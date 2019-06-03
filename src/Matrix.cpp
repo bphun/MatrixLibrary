@@ -3,6 +3,8 @@
 template <typename T>
 Matrix<T>::Matrix()
 {
+    computeMethod.initialize();
+
     this->numRows = 0;
     this->numCols = 0;
 
@@ -12,6 +14,8 @@ Matrix<T>::Matrix()
 template <typename T>
 Matrix<T>::Matrix(size_t rows, size_t cols)
 {
+    computeMethod.initialize();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -24,6 +28,8 @@ Matrix<T>::Matrix(size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
 {
+    computeMethod.initialize();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -36,6 +42,8 @@ Matrix<T>::Matrix(T *arr, size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
 {
+    computeMethod.initialize();
+
     this->numRows = rows;
     this->numCols = cols;
 
@@ -48,18 +56,21 @@ Matrix<T>::Matrix(vector<T> arr, size_t rows, size_t cols)
 template <typename T>
 Matrix<T>::Matrix(Matrix<T> &matrix)
 {
+    computeMethod.initialize();
+
     this->numRows = matrix.rows();
     this->numCols = matrix.cols();
 
     mat = new T[matrix.size()];
 
-    memcpy(mat, matrix.flatten(), sizeof(int *));
+    memcpy(mat, matrix.flatten(), sizeof(T *));
 }
 
 template <typename T>
 Matrix<T>::~Matrix()
 {
     delete[] mat;
+    computeMethod.deinitialize();
 }
 
 template <typename T>
@@ -111,8 +122,7 @@ void Matrix<T>::inverse()
 template <typename T>
 void Matrix<T>::print()
 {
-    for (int r = 0; r < numRows; r++)
-    {
+    for (int r = 0; r < numRows; r++) {
         for (int c = 0; c < numCols; c++)
             cout << elementAt(r, c) << " ";
         cout << endl;
@@ -128,13 +138,13 @@ Matrix<T> &Matrix<T>::operator+(Matrix<T> &matrix)
     if (numRows != matrix.rows() || numCols != matrix.cols())
         throw invalid_argument("Matrix addition requires two matrices of equal shape");
 
-    T *resultArr = new int[size()];
-    T *flattenedMatrix = matrix.flatten();
+    T *resultMatrix = new T[size()];
+    T *inputMatrix = matrix.flatten();
+    size_t memSize = size() * sizeof(*mat);
 
-    for (int i = 0; i < size(); i++)
-        resultArr[i] = mat[i] + flattenedMatrix[i];
+    computeMethod.doMatrixAddition(mat, inputMatrix, resultMatrix, numCols, size());
 
-    mat = resultArr;
+    memcpy(mat, resultMatrix, memSize);
 
     return *this;
 }
@@ -148,13 +158,13 @@ Matrix<T> &Matrix<T>::operator-(Matrix<T> &matrix)
     if (numRows != matrix.rows() || numCols != matrix.cols())
         throw invalid_argument("Matrix subtraction requires two matrices of equal shape");
 
-    T *resultArr = new int[size()];
-    T *flattenedMatrix = matrix.flatten();
+    T *resultMatrix = new T[size()];
+    T *inputMatrix = matrix.flatten();
+    size_t memSize = size() * sizeof(*mat);
 
-    for (int i = 0; i < size(); i++)
-        resultArr[i] = mat[i] - flattenedMatrix[i];
+    computeMethod.doMatrixSubtraction(mat, inputMatrix, resultMatrix, numCols, size());
 
-    mat = resultArr;
+    memcpy(mat, resultMatrix, memSize);
 
     return *this;
 }
@@ -165,12 +175,12 @@ Matrix<T> &Matrix<T>::operator*(T scalar)
     if (numRows <= 0 || numCols <= 0)
         throw invalid_argument("Scalar multiplcation requires a non-empty matrix");
 
-    T *resultArr = new int[size()];
+    T *resultMatrix = new T[size()];
+    size_t memSize = size() * sizeof(*mat);
 
-    for (int i = 0; i < size(); i++)
-        resultArr[i] = mat[i] * scalar;
+    computeMethod.doMatrixScalarMultiplication(mat, resultMatrix, scalar, numCols, size());
 
-    mat = resultArr;
+    memcpy(mat, resultMatrix, memSize);
 
     return *this;
 }
@@ -181,14 +191,15 @@ Matrix<T> &Matrix<T>::operator*(Matrix<T> &matrix)
     if (numCols != matrix.rows())
         throw invalid_argument("The number of columns in one matrix must equal the number of rows in the other matrix");
 
-    Matrix<T> *resultMatrix = new Matrix(numRows, matrix.cols());
+    T *resultMatrix = new T[size()];
+    T *inputMatrix = matrix.flatten();
+    size_t memSize = size() * sizeof(*mat);
 
-    for (int r = 0; r < numRows; r++)
-        for (int c = 0; c < matrix.cols(); c++)
-            for (int k = 0; k < numCols; k++)
-                resultMatrix->setElementAt(r, c, resultMatrix->elementAt(r, c) + elementAt(r, k) * matrix.elementAt(k, c));
+    computeMethod.doMatrixMultiplication(mat, inputMatrix, resultMatrix, numRows, numCols, matrix.cols());
 
-    return *resultMatrix;
+    memcpy(mat, resultMatrix, memSize);
+
+    return *this;
 }
 
 template <typename T>
@@ -206,12 +217,12 @@ Matrix<T> &Matrix<T>::operator/(T scalar)
     if (numRows <= 0 || numCols <= 0)
         throw invalid_argument("Scalar multiplcation requires a non-empty matrix");
 
-    T *resultArr = new int[size()];
+    T *resultMatrix = new T[size()];
+    size_t memSize = size() * sizeof(*mat);
 
-    for (int i = 0; i < size(); i++)
-        resultArr[i] = mat[i] / scalar;
+    computeMethod.doMatrixScalarDivision(mat, resultMatrix, scalar, numCols, size());
 
-    mat = resultArr;
+    memcpy(mat, resultMatrix, memSize);
 
     return *this;
 }

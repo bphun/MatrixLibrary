@@ -13,15 +13,7 @@
 #include <stdio.h>
 #include <vector>
 
-#ifdef OPENCL_ENABLE
-#include <fstream>
-#if __APPLE__
-#include <OpenCL/cl.h>
-#else
-#include <CL/cl.h>
-#endif
-#include "GpuCompute.h"
-#endif
+#include "ComputeMethod.h"
 
 using namespace std;
 
@@ -34,6 +26,8 @@ private:
     size_t numRows, numCols;
 
     T *mat;
+
+    ComputeMethod<T> computeMethod;
 
 public:
     /**
@@ -214,9 +208,5 @@ public:
     bool equals(Matrix<T> &);
 };
 
-#ifdef OPENCL_ENABLE
-#include "Matrix_opencl.cpp"
-#else
-#include "Matrix_cpu.cpp"
-#endif
+#include "Matrix.cpp"
 #endif
