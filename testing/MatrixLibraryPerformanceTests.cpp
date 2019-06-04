@@ -3,6 +3,7 @@
 //  Seg fault may occur when the matrix has more than 1,440,000 elements
 
 void collectExecutionTime(double &, void (*)(void));
+void printProgress(double progress);
 
 void emptyConstructorTest();
 void specifiedRowColConstructorTest();
@@ -46,16 +47,19 @@ int main()
     for (int i = 0; i < numTests; i++) {
         PerformanceTest *performanceTest = performanceTests[i];
 
-        fstream testResultsFile("../testing/testResults/" + performanceTest->testName + ".csv", ios::out | ios::binary);
+        fstream testResultsFile("../testing/testResults/" + performanceTest->testName + "_" + COMPUTE_DEVICE_TYPE + ".csv", 
+                                ios::out | ios::binary);
 
         testResultsFile << performanceTest->testName << "\n";
 
+        printf("Running Test: %s\n", performanceTest->testName.c_str());
         for (int n = 0; n < NUM_TRIALS_PER_TEST; n++) {
+            printProgress((double)n / (double)NUM_TRIALS_PER_TEST);
             collectExecutionTime(performanceTest->executionTimes[n], performanceTest->testfunction);
             testResultsFile << float(performanceTest->executionTimes[n]) << std::fixed << "\n";
         }
 
-        printf("Test: %s test completed. (Min: %s, Max: %s, Mean: %s, Median: %s)\n",
+        printf("Test done: %s test completed. (Min: %s, Max: %s, Mean: %s, Median: %s)\n",
                performanceTest->testName.c_str(),
                performanceTest->minExecutionTime().c_str(),
                performanceTest->maxExecutionTime().c_str(),
@@ -64,6 +68,13 @@ int main()
 
         testResultsFile.close();
     }
+
+    delete[] arrA;
+    delete[] arrB;
+
+    for (int i = 0 ; i < numTests; i++)
+        if (performanceTests[i] != nullptr)
+            delete performanceTests[i];
 
     return 0;
 }
@@ -130,4 +141,17 @@ void scalarDivisionTest()
     Matrix<int> matrixA(arrA, MATRIX_ROWS, MATRIX_COLS);
 
     matrixA * 2;
+}
+
+void printProgress(double progress)
+{
+    std::cout << "[";
+    int pos = 70 * progress;
+    for (int i = 0; i < 70; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << int(progress * 100.0) << " %\r";
+    std::cout.flush();
 }

@@ -18,9 +18,9 @@
 #define COMPUTE_DEVICE_TYPE "CPU_SINGLE_THREADED"
 #endif
 
-#define MATRIX_ROWS 128
-#define MATRIX_COLS 128
-#define NUM_TRIALS_PER_TEST 10
+#define MATRIX_ROWS 1024
+#define MATRIX_COLS 1024
+#define NUM_TRIALS_PER_TEST 20
 
 using namespace std::chrono;
 
@@ -73,13 +73,13 @@ struct PerformanceTest
     string formatTime(double time)
     {
         // printf("%0.4fns\n", time);
-        return to_string(time) + "ns";
-        // if (time >= 100000 && time < 1000000)
-        //     return to_string(time / 1000) + "us"; //  Convert to microseconds
-        // else if (time >= 1000000)
-        //     return to_string(time / 1000000) + "ms"; //  Convert to milliseconds
-        // else
-        //     return to_string(time) + "ns"; //  Dont do any conversions, return time in nanoseconds
+        // return to_string(time) + "ns";
+        if (time >= 100000 && time < 1000000)
+            return to_string(time / 1000) + "us"; //  Convert to microseconds
+        else if (time >= 1000000)
+            return to_string(time / 1000000) + "ms"; //  Convert to milliseconds
+        else
+            return to_string(time) + "ns"; //  Dont do any conversions, return time in nanoseconds
     }
 };
 

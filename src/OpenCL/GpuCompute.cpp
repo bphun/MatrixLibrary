@@ -75,8 +75,8 @@ void createOpenClComputeContext()
     clContextCreated = true;
     _cond.notify_all();
     _lock.unlock();
-
-    commands = CL_CHECK_ERR(clCreateCommandQueue(context, devices[0], 0, &err));
+    
+    commands = CL_CHECK_ERR(clCreateCommandQueue(context, devices[1], 0, &err));
 }
 
 void buildOpenClProgramExecutable(string kernelFilePath)
@@ -135,11 +135,11 @@ void releaseClMemObjects(params... memObjects)
 
 void wait(cl_event event)
 {
-    CL_CHECK(clFinish(commands));
-    CL_CHECK(clFlush(commands));
-
     CL_CHECK(clWaitForEvents(1, &event));
     CL_CHECK(clReleaseEvent(event));
+        
+    CL_CHECK(clFinish(commands));
+    CL_CHECK(clFlush(commands));
 }
 
 template <typename T>
@@ -185,6 +185,7 @@ void deinitOpenCl()
     // CL_CHECK(clFinish(commands));
 
     // CL_CHECK(clReleaseKernel(kernel));
-    // CL_CHECK(clReleaseProgram(program));
+    CL_CHECK(clReleaseProgram(program));
+    // CL_CHECK(clReleaseCommandQueue(commands));
     CL_CHECK(clReleaseContext(context));
 }

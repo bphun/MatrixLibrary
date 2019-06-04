@@ -29,8 +29,9 @@ void ComputeMethod<T>::doMatrixMultiplication(T *mat, T *inputMatrix, T *resultM
 {
     for (int r = 0; r < matNumRows; r++) {
         for (int c = 0; c < inputMatrixCols; c++)
-            for (int k = 0; k < matNumCols; k++)
+            for (int k = 0; k < matNumCols; k++) {
                 resultMatrix[(r * matNumCols) + c] += mat[(r * matNumCols) + k] * inputMatrix[(k * matNumCols) + c];
+            }
     }
 }
 

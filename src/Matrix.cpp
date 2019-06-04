@@ -70,6 +70,7 @@ template <typename T>
 Matrix<T>::~Matrix()
 {
     delete[] mat;
+
     computeMethod.deinitialize();
 }
 
@@ -122,7 +123,8 @@ void Matrix<T>::inverse()
 template <typename T>
 void Matrix<T>::print()
 {
-    for (int r = 0; r < numRows; r++) {
+    for (int r = 0; r < numRows; r++)
+    {
         for (int c = 0; c < numCols; c++)
             cout << elementAt(r, c) << " ";
         cout << endl;
@@ -191,14 +193,17 @@ Matrix<T> &Matrix<T>::operator*(Matrix<T> &matrix)
     if (numCols != matrix.rows())
         throw invalid_argument("The number of columns in one matrix must equal the number of rows in the other matrix");
 
-    T *resultMatrix = new T[size()];
+    // Since we use '+=' while doing the actual calculation, all values must be intialized prior to calculating the product
+    T *resultMatrix = new int[size()];
     T *inputMatrix = matrix.flatten();
-    size_t memSize = size() * sizeof(*mat);
+
+    for (int i = 0; i < size(); i++)
+        resultMatrix[i] = 0;
 
     computeMethod.doMatrixMultiplication(mat, inputMatrix, resultMatrix, numRows, numCols, matrix.cols());
 
-    memcpy(mat, resultMatrix, memSize);
-
+    mat = resultMatrix;
+    
     return *this;
 }
 

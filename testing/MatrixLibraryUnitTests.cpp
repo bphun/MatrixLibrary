@@ -11,8 +11,8 @@
 
 #include "../src/Matrix.h"
 
-#define MATRIX_NUM_ROWS 100
-#define MATRIX_NUM_COLS 100
+#define MATRIX_NUM_ROWS 1024
+#define MATRIX_NUM_COLS 1024
 #define MATRIX_NUM_COLS_HALF MATRIX_NUM_COLS / 2
 
 using namespace std;
@@ -286,7 +286,7 @@ TEST(MatrixMultiplication, Multiplication_SquareMatrix)
     Matrix<int> matrixMultiplicationActualSolution(solutionArray, rows, cols);
 
     Matrix<int> &matrixMultiplicationCalculatedSolution = matrixA * matrixB;
-    
+
     EXPECT_TRUE(matrixMultiplicationCalculatedSolution.equals(matrixMultiplicationActualSolution));
 }
 
