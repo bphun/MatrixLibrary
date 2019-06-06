@@ -59,7 +59,7 @@ void ComputeMethod<T>::doMatrixDivision()
 template <typename T>
 void ComputeMethod<T>::doMatrixScalarDivision(T *mat, T *resultMatrix, T scalar, int numCols, int matrixSize)
 {
-#pragma omp parallel for shared(resultMatrixm, mat, scalar)
+#pragma omp parallel for shared(resultMatrix, mat, scalar)
     for (int i = 0; i < matrixSize; i++)
         resultMatrix[i] = mat[i] / scalar;
 }
