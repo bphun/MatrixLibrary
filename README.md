@@ -43,7 +43,7 @@ make
 ```
 
 To compile the matrix library in GPU computation mode(using OpenCL), ensure that you have a compiler installed that supports OpenMP then follow these steps:
-```
+```cmake
 git clone https://github.com/bphun/MatrixLibrary.git
 cd MatrixLibrary
 mkdir build
@@ -57,18 +57,21 @@ Once this matrix library is linked with your project, you can include the librar
 
 ## Examples
 Although all of the following examples use matrices that hold integers, this matrix library can be used with all numeric data types.
+
 Instantiating an empty matrix:
-```Matrix<int> matrix;```
+```c++
+Matrix<int> matrix;
+```
 
 Instantiating an empty matrix with a certain number of rows and columns:
-```
+```c++
 const int rows = 1024;
 const int columns = 1024;
 Matrix<int> matrix(rows, columns)
 ```
 
 Instantiating a matrix intialized with values of a numeric array:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -77,7 +80,7 @@ Matrix<int> matrix(intArray, rows, cols);
 ```
 
 Instantiating a matrix intialized with values of a numeric vector:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -87,7 +90,7 @@ Matrix<int> matrix(vector, rows, cols);
 ```
 
 Adding two matrices:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -100,7 +103,7 @@ Matrix<int> &resultMatrix = matrixA + matrixB;
 ```
 
 Multiplying a matrix by a scalar:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -112,7 +115,7 @@ Matrix<int> &resultMatrix = matrix * 2;
 ```
 
 Multiplying two matrices:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -125,7 +128,7 @@ Matrix<int> &resultMatrix = matrixA * matrixB;
 ```
 
 Subtracting two matrices:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
@@ -138,7 +141,7 @@ Matrix<int> &resultMatrix = matrixA - matrixB;
 ```
 
 Dividing a matrix by a scalar:
-```
+```c++
 const int rows = 2;
 const int cols = 2;
 
