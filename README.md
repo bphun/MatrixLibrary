@@ -12,9 +12,9 @@ This is a basic C++11 matrix library that supports the operations listed below:
 
 Experimental Features:
 * OpenCL GPU acceleration
+* OpenMP support
 
 Current features in development:
-* OpenMP support
 * Cuda GPU acceleration
 * Determinant calculation
 * Matrix inverse computation
