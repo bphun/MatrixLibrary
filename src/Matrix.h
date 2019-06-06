@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <vector>
+#include <cstring>
 
 #include "ComputeMethod.h"
 

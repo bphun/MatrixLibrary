@@ -1,7 +1,5 @@
 #include "PerformanceTest.h"
 
-//  Seg fault may occur when the matrix has more than 1,440,000 elements
-
 void collectExecutionTime(double &, void (*)(void));
 void printProgress(double progress);
 

@@ -44,6 +44,10 @@ enable_testing()
 set(PERFORMANCE_TEST_SRC "testing/MatrixLibraryPerformanceTests.cpp")
 set(UNIT_TEST_SRC "testing/MatrixLibraryUnitTests.cpp")
 
+if (DEFINED DEBUG)
+    add_compile_definitions(DEBUG)
+endif()
+
 if (DEFINED ADDITIONS)
   if (${ADDITIONS} STREQUAL "OPENCL")
     message("GPU Mode")
@@ -54,6 +58,9 @@ if (DEFINED ADDITIONS)
   if(${ADDITIONS} STREQUAL "OPENMP")
     message("OpenMP Mode")
     add_compile_definitions(ENABLE_OPENMP)
+    
+    SET(CMAKE_CXX_FLAGS "-fopenmp")
+
     #set(ADDITIONAL_SOURCES "src/OpenMP/ComputeMethod.cpp")
   endif()
 else()
@@ -66,7 +73,6 @@ add_executable(matrixlibraryunittests ${UNIT_TEST_SRC} ${ADDITIONAL_SOURCES})
 
 if (DEFINED ADDITIONS)
   if (${ADDITIONS} STREQUAL "OPENCL")
-    add_compile_definitions(DEBUG)
     add_compile_definitions(CL_SILENCE_DEPRECATION)
 
     find_package(OpenCL REQUIRED)
@@ -80,6 +86,10 @@ if (DEFINED ADDITIONS)
 
     target_link_libraries(matrixlibraryperformancetests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
     target_link_libraries(matrixlibraryunittests ${OpenCL_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+  endif()
+  if (${ADDITIONS} STREQUAL "OPENCL")
+  target_link_libraries(matrixlibraryperformancetests ${OpenMP_CXX_LIBRARIES})
+  target_link_libraries(matrixlibraryunittests ${OpenMP_CXX_LIBRARIES})
   endif()
 endif()
 
